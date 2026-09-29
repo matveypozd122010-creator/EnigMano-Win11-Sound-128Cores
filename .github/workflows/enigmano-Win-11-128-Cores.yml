@@ -47,18 +47,26 @@ jobs:
           }
           Write-Host "✅ All required secrets validated successfully"
 
-      - name: 📥 Download EnigMano-instance.ps1
+      - name: Download EnigMano script
         shell: pwsh
         run: |
-          $url = "https://gitlab.com/Shahzaib-YT/enigmano-windows-11-with-sound/-/raw/main/EnigMano-Instance.ps1"
-          Write-Host "🌐 Downloading EnigMano-Instance.ps1..."
-          Invoke-WebRequest -Uri $url -OutFile "EnigMano-Instance.ps1" -UseBasicParsing
-          if (!(Test-Path "./EnigMano-Instance.ps1")) {
-            Write-Error "❌ Failed to download EnigMano-Instance.ps1"
-            exit 1
-          }
-          Write-Host "✅ EnigMano-Instance.ps1 downloaded successfully"
+          git clone --depth 1 --branch main `
+            https://gitlab.com/Shahzaib-YT/enigmano-windows-11-with-sound.git `
+            enigmano-source
 
+          if ($LASTEXITCODE -ne 0) {
+            throw "Git clone failed"
+          }
+
+          Copy-Item `
+            "enigmano-source/EnigMano-Instance.ps1" `
+            "./EnigMano-Instance.ps1"
+
+          if (!(Test-Path "./EnigMano-Instance.ps1")) {
+            throw "PowerShell script not found"
+          }
+
+          Write-Host "Download completed"
       - name: ⚔️ Execute EnigMano Instance Script
         shell: pwsh
         run: |
